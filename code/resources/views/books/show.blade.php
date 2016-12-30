@@ -65,7 +65,7 @@
 						<div class="form-group">
 							{!! Form::label("published_date", "Published Date", ["class" => "control-label col-md-4"]) !!}
 							<div class="col-md-6">
-								<div class="form-control-static">{{ $book->published_date->format("m/d/Y") }}</div>
+								<div class="form-control-static">{{ !is_null($book->published_date) ? $book->published_date->format("m/d/Y") : "" }}</div>
 							</div>
 						</div>
 						<div class="form-group">

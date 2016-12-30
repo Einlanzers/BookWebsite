@@ -88,8 +88,8 @@ class Book extends Model
 		$book->google_id = $item["id"];
 		$book->amazon_id = null;
 		$book->title = $item["volumeInfo"]["title"];
-		$book->authors = implode(";", $item["volumeInfo"]["authors"]);
-		$book->publisher = $item["volumeInfo"]["publisher"];
+		$book->authors = isset($item["volumeInfo"]["authors"]) ? implode(";", $item["volumeInfo"]["authors"]) : "";
+		$book->publisher = isset($item["volumeInfo"]["publisher"]) ? $item["volumeInfo"]["publisher"] : "";
 		$book->published_date = strtotime($item["volumeInfo"]["publishedDate"]) ? new \Carbon\Carbon($item["volumeInfo"]["publishedDate"]) : null;
 		$book->description = $item["volumeInfo"]["description"];
 		$book->isbn_13 = $isbn13;
@@ -132,6 +132,13 @@ class Book extends Model
 		}
 		if (!$item)
 			return null;
+
+		$imageLink = "";
+		if (isset($item->LargeImage) && isset($item->LargeImage->URL))
+			$imageLink = $item->LargeImage->URL->__toString();
+		if (empty($imageLink) && isset($item->ImageSets) && isset($item->ImageSets->ImageSet) && isset($item->ImageSets->ImageSet->LargeImage) && isset($item->ImageSets->ImageSet->LargeImage->URL))
+			$imageLink = $item->ImageSets->ImageSet->LargeImage->URL->__toString();
+
 		$book = new Book;
 		$book->google_id = null;
 		$book->amazon_id = $item->ASIN->__toString();
@@ -143,7 +150,7 @@ class Book extends Model
 		$book->isbn_13 = $item->ItemAttributes->EAN->__toString();
 		$book->isbn_10 = $item->ItemAttributes->ISBN->__toString();
 		$book->pages = is_numeric($item->ItemAttributes->NumberOfPages->__toString()) ? $item->ItemAttributes->NumberOfPages->__toString() : null;
-		$book->image_link = $item->LargeImage->URL->__toString();
+		$book->image_link = $imageLink;
 		$book->save();
 		return $book;
 	}
