@@ -48,7 +48,7 @@ class Book extends Model
 	
 	public static function getByISBN($isbn)
 	{
-		$isbn = preg_replace("/[^0-9]/", "", $isbn);
+		$isbn = preg_replace("/[^0-9X]/", "", $isbn);
 		if (strlen($isbn) != 10 && strlen($isbn) != 13)
 			return null;
 		$column = strlen($isbn) == 10 ? "isbn_10" : "isbn_13";
@@ -63,7 +63,7 @@ class Book extends Model
 	
 	private static function lookupGoogle($isbn)
 	{
-		$isbn = preg_replace("/[^0-9]/", "", $isbn);
+		$isbn = preg_replace("/[^0-9X]/", "", $isbn);
 		$client = new \Google_Client();
 		$client->setApplicationName("Book Database");
 		$client->setDeveloperKey(env("GOOGLE_DEV_KEY", ""));
@@ -83,7 +83,8 @@ class Book extends Model
 				if ($industryIdentifier["type"] == "ISBN_10")
 					$isbn10 = $industryIdentifier["identifier"];
 			}
-		} 
+		}
+
 		$book = new Book;
 		$book->google_id = $item["id"];
 		$book->amazon_id = null;
@@ -92,6 +93,23 @@ class Book extends Model
 		$book->publisher = isset($item["volumeInfo"]["publisher"]) ? $item["volumeInfo"]["publisher"] : "";
 		$book->published_date = strtotime($item["volumeInfo"]["publishedDate"]) ? new \Carbon\Carbon($item["volumeInfo"]["publishedDate"]) : null;
 		$book->description = $item["volumeInfo"]["description"];
+		if (empty($isbn10) || empty($isbn13))
+		{
+			$lookupBook = Book::where("title", $book->title)->where("authors", $book->authors)->first();
+			if ($lookupBook)
+			{
+				if (empty($lookupBook->isbn_13) && strlen($isbn) == 13)
+					$lookupBook->isbn_13 = $isbn;
+				if (empty($lookupBook->isbn_10) && strlen($isbn) == 10)
+					$lookupBook->isbn_10 = $isbn;
+				$lookupBook->save();
+				return $lookupBook;
+			}
+		}
+		if (empty($isbn10) && strlen($isbn) == 10)
+			$isbn10 = $isbn;
+		if (empty($isbn13) && strlen($isbn) == 13)
+			$isbn13 = $isbn;
 		$book->isbn_13 = $isbn13;
 		$book->isbn_10 = $isbn10;
 		$book->pages = is_numeric($item["volumeInfo"]["pageCount"]) ? $item["volumeInfo"]["pageCount"] : null;;
@@ -102,7 +120,7 @@ class Book extends Model
 	
 	private static function lookupAmazon($isbn)
 	{
-		$isbn = preg_replace("/[^0-9]/", "", $isbn);
+		$isbn = preg_replace("/[^0-9X]/", "", $isbn);
 		$parameters = [
 			"AWSAccessKeyId" => env("AMAZON_AWS_ACCESS_KEY", ""),
 			"AssociateTag" => env("AMAZON_ASSOCIATE_TAG", ""),
