@@ -13,7 +13,7 @@
 				<div class="panel-body">
 					{!! Form::open(["action" => "BookController@store", "method" => "POST", "class" => "form-horizontal"]) !!}
 						<div class="form-group{{ $errors->has("isbn") ? " has-error" : "" }}">
-							{!! Form::label("isbn", "ISBN 10/13", ["class" => "control-label col-md-4"]) !!}
+							{!! Form::label("isbn", "ISBN/EAN/ASIN", ["class" => "control-label col-md-4"]) !!}
 							<div class="col-md-6">
 								{!! Form::text("isbn", null, ["class" => "form-control"]) !!}
 								{!! Helper::fieldErrorDisplay("isbn", $errors) !!}

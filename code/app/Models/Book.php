@@ -48,22 +48,26 @@ class Book extends Model
 	
 	public static function getByISBN($isbn)
 	{
-		$isbn = preg_replace("/[^0-9X]/", "", $isbn);
-		if (strlen($isbn) != 10 && strlen($isbn) != 13)
-			return null;
-		$column = strlen($isbn) == 10 ? "isbn_10" : "isbn_13";
-		$book = Book::where($column, $isbn)->first();
-		if ($book)
-			return $book;
-		$book = Book::lookupGoogle($isbn);
+		$isbn = str_replace("-", "", $isbn);
+		$searchColumns = ["isbn_10", "isbn_13", "google_id", "amazon_id"];
+		foreach ($searchColumns as $searchColumn)
+		{
+			$book = Book::where($searchColumn, $isbn)->first();
+			if ($book)
+				return $book;
+		}
+//		$book = Book::lookupGoogle($isbn);
+//		if (!$book)
+			$book = Book::lookupAmazon($isbn, "ISBN");
 		if (!$book)
-			$book = Book::lookupAmazon($isbn);
+			$book = Book::lookupAmazon($isbn, "EAN");
+		if (!$book)
+			$book = Book::lookupAmazon($isbn, "ASIN");
 		return $book;
 	}
 	
 	private static function lookupGoogle($isbn)
 	{
-		$isbn = preg_replace("/[^0-9X]/", "", $isbn);
 		$client = new \Google_Client();
 		$client->setApplicationName("Book Database");
 		$client->setDeveloperKey(env("GOOGLE_DEV_KEY", ""));
@@ -118,19 +122,21 @@ class Book extends Model
 		return $book;
 	}
 	
-	private static function lookupAmazon($isbn)
+	private static function lookupAmazon($isbn, $type)
 	{
-		$isbn = preg_replace("/[^0-9X]/", "", $isbn);
+		if (!in_array($type, ["ISBN", "EAN", "ASIN"]))
+			$type = "ISBN";
 		$parameters = [
 			"AWSAccessKeyId" => env("AMAZON_AWS_ACCESS_KEY", ""),
 			"AssociateTag" => env("AMAZON_ASSOCIATE_TAG", ""),
-			"IdType" => "ISBN",
+			"IdType" => $type,
 			"ItemId" => $isbn,
 			"Operation" => "ItemLookup",
 			"ResponseGroup" => "Large",
 			"Service" => "AWSECommerceService",
-			"SearchIndex" => "All",
 		];
+		if (in_array($type, ["ISBN", "EAN"]))
+			$parameters["SearchIndex"] = "All";
 		$query = http_build_query($parameters);
 		$url = "http://webservices.amazon.com/onca/xml?{$query}";
 		$url = Book::amazonSign($url, env("AMAZON_SECRET_ACCESS_KEY", ""));
@@ -147,6 +153,14 @@ class Book extends Model
 		{
 			if (isset($innerItem->ItemAttributes->EAN) && isset($innerItem->ItemAttributes->ISBN))
 				$item = $innerItem;
+		}
+		if (!$item)
+		{
+			foreach($xml->Items->Item as $innerItem)
+			{
+				$item = $innerItem;
+				break;
+			}
 		}
 		if (!$item)
 			return null;

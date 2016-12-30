@@ -45,7 +45,8 @@ class BookController extends Controller
 		if (!$book)
 			return redirect()
 				->action("BookController@create")
-				->with("error", "Failed to find book by ISBN.");
+				->with("error", "Failed to find book by ISBN/EAN/ASIN.")
+				->withInput();
 		return redirect()
 			->action("BookController@show", $book)
 			->with("success", "Book created!");
