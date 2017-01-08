@@ -19,7 +19,7 @@ class Helper
 	
 	public static function formatDate($date, $format)
 	{
-		$date = new \Carbon\Carbon($date);
+		$date = new \Carbon\Carbon($date, "America/Detroit");
 		return $date->format($format);
 	}
 }

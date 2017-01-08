@@ -22,7 +22,7 @@
 						<div class="form-group{{ $errors->has("date") ? " has-error" : "" }}">
 							{!! Form::label("date", "Date", ["class" => "control-label col-md-4"]) !!}
 							<div class="col-md-6">
-								{!! Form::text("date", date("m/d/Y"), ["class" => "form-control datepicker"]) !!}
+								{!! Form::text("date", Helper::formatDate("now", "m/d/Y"), ["class" => "form-control datepicker"]) !!}
 								{!! Helper::fieldErrorDisplay("date", $errors) !!}
 							</div>
 						</div>
