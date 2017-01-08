@@ -18,3 +18,4 @@ Route::resource("books", "BookController", ["only" => ["index", "create", "store
 Route::get("/book/{book}/mark-read", "UserBookController@create");
 Route::post("/book/{book}/mark-read", "UserBookController@store");
 Route::get("/book/{book}/readings", "UserBookController@show");
+Route::post("/book/{book}/mark-read-now", "UserBookController@markReadNow");

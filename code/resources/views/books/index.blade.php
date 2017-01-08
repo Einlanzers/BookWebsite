@@ -16,6 +16,18 @@
 	{
 		width: 125px;
 	}
+	
+	.recentlyUpdated
+	{
+		color: green;
+		font-weight: bold;
+	}
+	
+	.loading
+	{
+		color: grey;
+		font-weight: bold;
+	}
 </style>
 <div class="container">
 	<div class="row">
@@ -67,7 +79,10 @@
 											{{ $book->authors }}<br />
 											{{ $book->getISBN13() }}<br />
 											{{ $book->isbn_10 }}<br />
-											Last Read: {{ $book->getLastRead() }}
+											<span class="lastRead">Last Read: {{ $book->getLastRead() }}</span><br />
+											<span class="btn btn-success btn-sm markReadNow" data-id="{{ $book->id }}" title="Mark Read Now">
+												<i class="fa fa-plus"></i> Mark Read Now
+											</span>
 										</td>
 									</tr>
 								@endforeach
@@ -80,4 +95,34 @@
 		</div>
 	</div>
 </div>
+@endsection
+
+@section("scripts")
+<script type="text/javascript">
+	$(document).ready(function()
+	{
+		$(".markReadNow").click(function()
+		{
+			var label = "Last Read: ";
+			var lastRead = $(this).closest("td").find(".lastRead");
+			lastRead.addClass("loading");
+			lastRead.html(label + "...");
+			var bookId = $(this).data("id");
+			$.ajax({
+				url: "/book/" + bookId + "/mark-read-now",
+				method: "POST",
+			}).done(function(data)
+			{
+				lastRead.removeClass("loading");
+				lastRead.html(label + "N/A");
+				if (data.success)
+				{
+					lastRead.addClass("recentlyUpdated");
+					lastRead.html(label + data.date);
+					setTimeout(function() { lastRead.removeClass("recentlyUpdated"); }, 5000);
+				}
+			});
+		});
+	});
+</script>
 @endsection

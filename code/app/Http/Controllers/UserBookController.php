@@ -31,15 +31,24 @@ class UserBookController extends Controller
 	
 	public function store(StoreUserBookRequest $request, $book)
 	{
-		$books = $request->session()->get("books", "main");
-		$controller = $books == "mine" ? "UserBookController" : "BookController";
 		$userBook = new UserBook;
 		$userBook->user_id = Auth::user()->id;
 		$userBook->book_id = $book->id;
 		$userBook->date = new \Carbon\Carbon($request->get("date"));
 		$userBook->save();
 		return redirect()
-			->action("{$controller}@index")
+			->action("BookController@index")
 			->with("success", "Book marked as read!");
+	}
+	
+	public function markReadNow($book)
+	{
+		$date = new \Carbon\Carbon("now", "America/Detroit");
+		$userBook = new UserBook;
+		$userBook->user_id = Auth::user()->id;
+		$userBook->book_id = $book->id;
+		$userBook->date = $date;
+		$userBook->save();
+		return ["success" => true, "date" => $date->format("m/d/Y")];
 	}
 }
