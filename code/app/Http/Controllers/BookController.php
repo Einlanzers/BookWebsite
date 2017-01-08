@@ -23,7 +23,11 @@ class BookController extends Controller
 			$ids = array_pluck($results, "id");
 			$books = Book::whereIn("books.id", $ids);
 		}
-		$books = $books->leftJoin("user_books", "user_books.book_id", "=", "books.id");
+		$books = $books->leftJoin("user_books", function($join) use($request)
+		{
+			$join->on("user_books.book_id", "=", "books.id");
+			$join->on("user_books.user_id", "=", DB::raw($request->user()->id));
+		});
 		if ($request->has("start_date") && strtotime($request->get("start_date")))
 			$books->where("user_books.date", ">=", new \Carbon\Carbon($request->get("start_date")));
 		if ($request->has("end_date") && strtotime($request->get("end_date")))
@@ -36,7 +40,7 @@ class BookController extends Controller
 			->paginate(15)
 			->appends($request->all());
 			
-		$totalBooks = $request->user()->userBooks()->groupBy("book_id")->count();
+		$totalBooks = $request->user()->userBooks()->select("book_id")->groupBy("book_id")->get()->count();
 		$totalReadings = $request->user()->userBooks()->count();
 		return view("books/index", ["books" => $books, "totalReadings" => $totalReadings, "totalBooks" => $totalBooks]);
 	}
