@@ -11,11 +11,10 @@
 |
 */
 Auth::routes();
-Route::get("/", "HomeController@index");
+Route::get("/", function () { return redirect()->action("BookController@index"); });
 
 Route::resource("books", "BookController", ["only" => ["index", "create", "store", "show"]]);
 
 Route::get("/book/{book}/mark-read", "UserBookController@create");
 Route::post("/book/{book}/mark-read", "UserBookController@store");
 Route::get("/book/{book}/readings", "UserBookController@show");
-Route::get("/my-books", "UserBookController@index");

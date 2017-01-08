@@ -1,11 +1,7 @@
 @extends("app")
 
 @section("breadcrumb")
-	@if (session("books") != "mine")
-		<li><a href="{{ action("BookController@index") }}">Books</a></li>
-	@else
-		<li><a href="{{ action("UserBookController@index") }}">My Books</a></li>
-	@endif
+	<li><a href="{{ action("BookController@index") }}">Books</a></li>
 	<li class="active">{{ $book->title }}</li>
 @stop
 

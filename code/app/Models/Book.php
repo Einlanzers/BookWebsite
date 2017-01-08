@@ -42,7 +42,7 @@ class Book extends Model
 			->orderBy("date", "DESC")
 			->first();
 		if (!$userBook)
-			return null;
+			return "N/A";
 		return $userBook->date->format("m/d/Y");
 	}
 	

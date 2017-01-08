@@ -30,12 +30,16 @@
 						</div>
 						{!! Form::open(["action" => "BookController@index", "method" => "get", "class" => "form-inline", "autocomplete" => "off"]) !!}
 							<div class="form-group">
-								{!! Form::text("search", Request::get("search"), ["class" => "form-control input-sm", "placeholder" => "Search Term", "style" => "width:500px;"]) !!}
+								{!! Form::text("search", Request::get("search"), ["class" => "form-control input-sm", "placeholder" => "Search Term", "style" => "width: 200px;"]) !!}
+								{!! Form::text("start_date", Request::get("start_date"), ["class" => "form-control input-sm datepicker", "placeholder" => "Start", "style" => "width: 100px;"]) !!}
+								{!! Form::text("end_date", Request::get("end_date"), ["class" => "form-control input-sm datepicker", "placeholder" => "End", "style" => "width: 100px;"]) !!}
 							</div>
 							{{ Form::submit("Filter", ["class" => "btn btn-primary btn-sm"]) }}
 						{!! Form::close() !!}
 						<div style="clear: both;"></div>
 					</div>
+					Books: {{ $totalBooks }}<br />
+					Readings: {{ $totalReadings }}
 					<div class="table-responsive">
 						<table class="table table-striped table-hover">
 							<thead>
@@ -62,7 +66,8 @@
 											</a><br />
 											{{ $book->authors }}<br />
 											{{ $book->getISBN13() }}<br />
-											{{ $book->isbn_10 }}
+											{{ $book->isbn_10 }}<br />
+											Last Read: {{ $book->getLastRead() }}
 										</td>
 									</tr>
 								@endforeach

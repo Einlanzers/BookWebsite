@@ -13,15 +13,9 @@
 	<nav class="navbar navbar-default navbar-static-top">
 		<div class="container">
 			<div class="navbar-header">
-				<a class="navbar-brand" href="{{ action("HomeController@index") }}">Book Database</a>
+				<a class="navbar-brand" href="{{ action("BookController@index") }}">Book Database</a>
 			</div>
 			<div class="collapse navbar-collapse" id="app-navbar-collapse">
-				<ul class="nav navbar-nav">
-					@if (Auth::check())
-						<li><a href="{{ action("BookController@index") }}">Books</a></li>
-						<li><a href="{{ action("UserBookController@index") }}">My Books</a></li>
-					@endif
-				</ul>
 				<ul class="nav navbar-nav navbar-right">
 					@if (Auth::guest())
 						<li><a href="{{ url("/login") }}"><i class="fa fa-btn fa-sign-out"></i>Login</a></li>
@@ -53,7 +47,6 @@
 			<div class="col-md-10 col-md-offset-1">
 				@include("notifications")
 				<ol class="breadcrumb well well-sm">
-					<li><a href="{{ action("HomeController@index") }}">Home</a></li>
 					@yield("breadcrumb")
 				</ol>
 			</div>
