@@ -56,8 +56,8 @@ class Book extends Model
 			if ($book)
 				return $book;
 		}
-//		$book = Book::lookupGoogle($isbn);
-//		if (!$book)
+		$book = Book::lookupGoogle($isbn);
+		if (!$book)
 			$book = Book::lookupAmazon($isbn, "ISBN");
 		if (!$book)
 			$book = Book::lookupAmazon($isbn, "EAN");
