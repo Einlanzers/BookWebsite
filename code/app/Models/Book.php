@@ -96,7 +96,7 @@ class Book extends Model
 		$book->authors = isset($item["volumeInfo"]["authors"]) ? implode(";", $item["volumeInfo"]["authors"]) : "";
 		$book->publisher = isset($item["volumeInfo"]["publisher"]) ? $item["volumeInfo"]["publisher"] : "";
 		$book->published_date = strtotime($item["volumeInfo"]["publishedDate"]) ? new \Carbon\Carbon($item["volumeInfo"]["publishedDate"]) : null;
-		$book->description = $item["volumeInfo"]["description"];
+		$book->description = !empty($item["volumeInfo"]["description"]) ? $item["volumeInfo"]["description"] : "";
 		if (empty($isbn10) || empty($isbn13))
 		{
 			$lookupBook = Book::where("title", $book->title)->where("authors", $book->authors)->first();
